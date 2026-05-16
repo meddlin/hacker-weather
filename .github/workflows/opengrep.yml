@@ -1,0 +1,21 @@
+name: Opengrep
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  opengrep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Opengrep
+        run: curl -fsSL https://raw.githubusercontent.com/opengrep/opengrep/main/install.sh | bash
+
+      - name: Run Opengrep
+        run: ~/.opengrep/cli/latest/opengrep scan --config opengrep-rules src tests
+

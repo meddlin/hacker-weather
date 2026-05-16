@@ -1,0 +1,29 @@
+rules:
+  - id: python-dangerous-eval
+    languages:
+      - python
+    severity: ERROR
+    message: Avoid eval/exec because they can execute attacker-controlled code.
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: exec(...)
+
+  - id: python-subprocess-shell-true
+    languages:
+      - python
+    severity: WARNING
+    message: Avoid subprocess calls with shell=True unless inputs are fully trusted.
+    pattern-either:
+      - pattern: subprocess.run(..., shell=True, ...)
+      - pattern: subprocess.call(..., shell=True, ...)
+      - pattern: subprocess.Popen(..., shell=True, ...)
+
+  - id: python-pickle-load
+    languages:
+      - python
+    severity: WARNING
+    message: Avoid loading pickle data from untrusted sources.
+    pattern-either:
+      - pattern: pickle.load(...)
+      - pattern: pickle.loads(...)
+

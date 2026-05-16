@@ -1,0 +1,45 @@
+[project]
+name = "hacker-weather"
+version = "0.1.0"
+description = "Terminal weather radar and NOAA weather visualization CLI."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "chafa.py>=1.2.0",
+    "pillow>=10.4.0",
+    "rich>=13.9.0",
+    "textual>=1.0.0",
+]
+
+[project.scripts]
+hacker-weather = "hacker_weather.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "ruff>=0.8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "SIM",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
