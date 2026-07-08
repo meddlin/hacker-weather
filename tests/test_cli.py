@@ -19,6 +19,7 @@ def test_help_includes_image_options() -> None:
 
     assert "hacker-weather" in help_text
     assert "--image-test" in help_text
+    assert "--radar" in help_text
     assert "--image-renderer" in help_text
     assert "--image-width" in help_text
     assert "--image-height" in help_text
@@ -67,6 +68,53 @@ def test_image_test_uses_renderer() -> None:
     assert exit_code == 0
     assert "renderer: symbols, size: 120x40 cells" in stream.getvalue()
     assert "rendered output" in stream.getvalue()
+
+
+def test_radar_option_delegates_to_radar_runner() -> None:
+    stream = io.StringIO()
+    console = Console(file=stream, force_terminal=False, width=80)
+    calls: list[dict[str, object]] = []
+
+    def renderer(_image: object, _options: ImageRenderOptions) -> ImageRenderResult:
+        return ImageRenderResult(
+            output="radar",
+            renderer_name="symbols",
+            pixel_mode="CHAFA_PIXEL_MODE_SYMBOLS",
+            width=120,
+            height=40,
+        )
+
+    def radar_runner(zip_code: str, **kwargs: object) -> int:
+        calls.append({"zip_code": zip_code, **kwargs})
+        return 0
+
+    exit_code = main(
+        [
+            "--radar",
+            "90210",
+            "--image-renderer",
+            "symbols",
+            "--image-width",
+            "120",
+            "--image-height",
+            "40",
+        ],
+        console=console,
+        image_renderer=renderer,
+        radar_runner=radar_runner,
+    )
+
+    assert exit_code == 0
+    assert calls == [
+        {
+            "zip_code": "90210",
+            "console": console,
+            "renderer": renderer,
+            "renderer_name": "symbols",
+            "width": 120,
+            "height": 40,
+        }
+    ]
 
 
 def test_forced_renderer_error_returns_nonzero() -> None:
