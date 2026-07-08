@@ -13,7 +13,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="hacker-weather",
         description=(
             "Terminal weather radar and NOAA weather visualization CLI. "
-            "NOAA API commands are not wired yet."
+            "Display current NWS radar GIF loops by ZIP code."
         ),
     )
     parser.add_argument(
@@ -27,20 +27,25 @@ def build_parser() -> argparse.ArgumentParser:
         help="render a sample rainy weather cartoon image in the terminal",
     )
     parser.add_argument(
+        "--radar",
+        metavar="ZIP",
+        help="display the current NWS radar GIF loop for a U.S. ZIP code",
+    )
+    parser.add_argument(
         "--image-renderer",
         choices=("auto", "kitty", "iterm2", "sixel", "symbols"),
         default="auto",
-        help="terminal image renderer to use with --image-test",
+        help="terminal image renderer to use with --image-test or --radar",
     )
     parser.add_argument(
         "--image-width",
         type=_positive_int,
-        help="image-test render width in terminal cells",
+        help="image render width in terminal cells",
     )
     parser.add_argument(
         "--image-height",
         type=_positive_int,
-        help="image-test render height in terminal cells",
+        help="image render height in terminal cells",
     )
     return parser
 
@@ -50,6 +55,7 @@ def main(
     *,
     console: Console | None = None,
     image_renderer: Callable[..., object] | None = None,
+    radar_runner: Callable[..., int] | None = None,
 ) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -58,6 +64,19 @@ def main(
         from .image_test import show_image_test
 
         return show_image_test(
+            console=console,
+            renderer=image_renderer,
+            renderer_name=args.image_renderer,
+            width=args.image_width,
+            height=args.image_height,
+        )
+
+    if args.radar:
+        from .radar import show_radar
+
+        run_radar = radar_runner or show_radar
+        return run_radar(
+            args.radar,
             console=console,
             renderer=image_renderer,
             renderer_name=args.image_renderer,
